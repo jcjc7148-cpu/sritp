@@ -137,6 +137,28 @@ function OpenBarber()
     local paid = false
     Creator.Begin({ cam = 'face' })
 
+    -- Chapeau, lunettes et masque retirés pour bien voir la coupe (remis en partant)
+    local ped = PlayerPedId()
+    local worn = {
+        hat = { GetPedPropIndex(ped, 0), GetPedPropTextureIndex(ped, 0) },
+        glasses = { GetPedPropIndex(ped, 1), GetPedPropTextureIndex(ped, 1) },
+        mask = { GetPedDrawableVariation(ped, 1), GetPedTextureVariation(ped, 1) },
+    }
+    local stripped = false
+    local function strip(on)
+        local p = PlayerPedId()
+        if on then
+            ClearPedProp(p, 0) ClearPedProp(p, 1)
+            SetPedComponentVariation(p, 1, 0, 0, 0)
+        else
+            if worn.hat[1] >= 0 then SetPedPropIndex(p, 0, worn.hat[1], worn.hat[2], true) end
+            if worn.glasses[1] >= 0 then SetPedPropIndex(p, 1, worn.glasses[1], worn.glasses[2], true) end
+            SetPedComponentVariation(p, 1, worn.mask[1], worn.mask[2], 0)
+        end
+        stripped = on
+    end
+    strip(true)
+
     NovaMenu.Open({
         title = 'BARBIER', subtitle = 'Barbier',
         items = function()
@@ -145,6 +167,9 @@ function OpenBarber()
             local total = priceOf(keys)
             local function price(k) return ('%s $'):format(Nova.FormatMoney(Barber.Prices[k] or 0)) end
             local items = {
+                { type = 'checkbox', label = 'Retirer chapeau, lunettes et masque', checked = stripped,
+                  description = 'Pour bien voir ta coupe. Ils sont remis automatiquement en partant.',
+                  onChange = function(v) strip(v) end },
                 { type = 'separator', label = 'Visage' },
                 { label = 'Cheveux', rightLabel = price('hair'), submenu = hairMenu },
                 { label = 'Sourcils', rightLabel = price('eyebrows'), submenu = function() return overlayMenu('eyebrows') end },
@@ -167,6 +192,7 @@ function OpenBarber()
                   end },
                 { label = 'Tout annuler', disabled = total == 0, onSelect = function()
                     Creator.SetAppearance(original)
+                    if stripped then strip(true) end
                     NovaMenu.Refresh()
                 end },
                 { label = 'Partir', description = 'Les changements non payés sont annulés.', onSelect = function() NovaMenu.Close() end },
@@ -174,7 +200,7 @@ function OpenBarber()
             return items
         end,
         onClose = function()
-            if not paid then Creator.SetAppearance(original) end
+            if not paid then Creator.SetAppearance(original) else strip(false) end
             Creator.End()
             open = false
         end,

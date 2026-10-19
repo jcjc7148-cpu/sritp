@@ -191,23 +191,7 @@ function Clothing.OpenShop()
     })
 end
 
----------------------------------------------------------------------
--- Blips + zones des magasins
----------------------------------------------------------------------
-CreateThread(function()
-    Nova.PlaceBuilder('clothing', function(addPoint, addBlip)
-    for _, c in ipairs(Shop.Locations) do
-        addBlip(vector3(c.x, c.y, c.z), Shop.Blip)
-        addPoint({
-            coords = vector3(c.x, c.y, c.z),
-            label = 'Magasin de vêtements',
-            distance = Shop.Distance,
-            key = Shop.Key,
-            canInteract = function() return not shopOpen and not Creator.active and not IsPedInAnyVehicle(PlayerPedId(), false) end,
-            onPress = function() Clothing.OpenShop() end,
-        })
-    end
-    end)
-end)
+-- Les points des magasins de vêtements sont dans nova_clothing (nouveau magasin).
+-- Clothing.Items reste utilisé par le créateur de personnage.
 
 exports('OpenClothingShop', Clothing.OpenShop)

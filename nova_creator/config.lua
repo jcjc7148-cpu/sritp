@@ -107,5 +107,5 @@ CreatorConfig.Barber = {
 }
 
 -- Points modifiables en jeu : Admin > Configuration serveur > Lieux et blips
-Nova.PlaceSet('clothing', CreatorConfig.Shop.Locations, { label = 'Magasins de vêtements', fields = { { k = '@', label = 'Point', h = true } } })
+-- Les magasins de vêtements sont gérés par nova_clothing (CreatorConfig.Shop ne sert plus qu'aux prix de l'éditeur)
 Nova.PlaceSet('barber', CreatorConfig.Barber.Locations, { label = 'Barbiers', fields = { { k = '@', label = 'Point', h = true } } })
